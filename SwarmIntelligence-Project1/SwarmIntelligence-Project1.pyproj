@@ -21,6 +21,15 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DrawPlot.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ISwarmIntelligence.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SimpleRealPSO.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SwarmIntelligence_Project1.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
