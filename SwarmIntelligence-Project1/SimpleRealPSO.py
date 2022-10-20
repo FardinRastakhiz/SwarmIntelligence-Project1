@@ -2,35 +2,47 @@ from ISwarmIntelligence import PSO
 import numpy as np
 from abc import ABC
 from abc import abstractmethod
+import matplotlib.pyplot as plt
 
 class SimpleRealPSO(PSO):
     
-    def __init__(self, target_function, intertia_weight_function, input_ranges: np.ndarray, swarm_size: int=100, c1: int=0.3, c2: int=0.4, iteration_count: int=100):
+    def __init__(self, target_function, intertia_weight_function, input_ranges: np.ndarray, swarm_size: int=100,
+                c1: int=0.1, c2: int=0.1, iteration_count: int=100, is_maximization: bool = True):
         self.N = swarm_size
         self.d = input_ranges.shape[0]
 
-        super().__init__(target_function, input_ranges)
+        super().__init__(target_function, input_ranges, iteration_count, is_maximization)
 
         self.w = intertia_weight_function
         self.c1 = c1
         self.c2 = c2
-        self.iteration_count = iteration_count
 
         self.fitnesses : np.ndarray = self.evaluate_fitnesses()
 
         self.pbests = self.positions.copy()
         self.pbest_fitnesses = self.fitnesses.copy()
-        self.gbests : np.ndarray = self.take_gbests()
+        self.gbest : np.ndarray = self.take_gbest()
 
+        
+    def run_iteration(self, i: int):
+        self.__run_iteration_implementation(i)
+        super().run_iteration(i)
 
     def run(self):
         for i in range(self.iteration_count):
-            self.update_velocities(i)
-            self.update_positions()
-            self.fitnesses = self.evaluate_fitnesses()
-            self.update_pbests()
-            self.gbests = self.take_gbests()
-            print(self.fitnesses[0])
+            self.__run_iteration_implementation(i)
+            self.best_fitnesses[i] = self.calculate_function(self.gbest.T)
+
+        plt.plot(np.arange(20, self.iteration_count, 1), self.best_fitnesses[20:])
+        plt.show()
+
+    def __run_iteration_implementation(self, i: int):
+        self.update_velocities(i)
+        self.update_positions()
+        self.fitnesses = self.evaluate_fitnesses()
+        self.update_pbests()
+        self.gbest = self.take_gbest()
+        print(f'{i}: {self.fitnesses[0]}')
 
     def generate_swarm_positions(self):
         positions = np.random.rand(self.N, self.d)
@@ -47,22 +59,25 @@ class SimpleRealPSO(PSO):
         return velocities
 
     def evaluate_fitnesses(self):
-        return self.function(self.positions.T)
+        return self.calculate_function(self.positions.T)
 
     def update_pbests(self):
-        self.pbest_fitnesses = self.function(self.pbests.T)
-        changes = self.pbest_fitnesses > self.fitnesses
+        self.pbest_fitnesses = self.calculate_function(self.pbests.T)
+        changes = self.fitnesses > self.pbest_fitnesses
         self.pbests[changes] = self.positions[changes]
 
-    def take_gbests(self):
-        return self.pbests[np.argmax(self.pbest_fitnesses)]
+    def take_gbest(self):
+        m = self.pbests[np.argmax(self.pbest_fitnesses)]
+        f = self.calculate_function(m.T)
+        return m 
 
     def update_velocities(self, t: int):
         inertia = self.w(t) * self.velocities 
         cognitive = self.c1 * np.random.rand(self.N)[:, None] * (self.pbests - self.positions)
-        social = self.c2 * np.random.rand(self.N)[:, None] * (self.gbests - self.positions)
+        social = self.c2 * np.random.rand(self.N)[:, None] * (self.gbest - self.positions)
         self.velocities = inertia + cognitive + social
 
     def update_positions(self):
         self.positions = self.positions + self.velocities
+    
 
