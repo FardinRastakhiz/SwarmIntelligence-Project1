@@ -23,7 +23,6 @@ class SimpleRealPSO(PSO):
         self.pbest_fitnesses = self.fitnesses.copy()
         self.gbest : np.ndarray = self.take_gbest()
 
-        
     def run_iteration(self, i: int):
         self.__run_iteration_implementation(i)
         super().run_iteration(i)
@@ -33,7 +32,11 @@ class SimpleRealPSO(PSO):
             self.__run_iteration_implementation(i)
             self.best_fitnesses[i] = self.calculate_function(self.gbest.T)
 
-        plt.plot(np.arange(20, self.iteration_count, 1), self.best_fitnesses[20:])
+        start_plot: int = 0
+        plt.plot(np.arange(start_plot, self.iteration_count, 1), self.best_fitnesses[start_plot:])
+        plt.xlabel("Iteration")
+        plt.ylabel("Fitness (The more is better)")
+        plt.title(f"Fitness diagram of SPO with {self.N} particle")
         plt.show()
 
     def __run_iteration_implementation(self, i: int):
@@ -79,5 +82,3 @@ class SimpleRealPSO(PSO):
 
     def update_positions(self):
         self.positions = self.positions + self.velocities
-    
-

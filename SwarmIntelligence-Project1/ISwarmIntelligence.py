@@ -36,6 +36,13 @@ class SwarmIntelligence(ABC):
     def calculate_function(self, X):
         return self.is_maximization * self.function(X)
 
+    @abstractmethod
+    def generate_swarm_positions(self):
+        pass
+    
+    @abstractmethod
+    def generate_swarm_velocities(self):
+        pass
         
 class PSO(SwarmIntelligence):
     pass
